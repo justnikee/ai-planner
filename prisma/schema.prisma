@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
+  // output   = "../app/generated/prisma"
 }
 
 datasource db {
@@ -20,6 +20,7 @@ enum TaskStatus {
 
 model Task {
   id         String     @id @default(uuid()) @db.Uuid
+  userId     String     @map("user_id") @db.Uuid
   title      String
   due_at     DateTime?
   status     TaskStatus @default(pending)

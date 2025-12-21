@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { TaskStatus } from "@/app/generated/prisma/enums";
+import { TaskStatus } from "@prisma/client";
+import { createClient } from '@/utils/supabase/server'
+
 
 interface CreateTaskBody {
     title: string;
@@ -9,6 +11,17 @@ interface CreateTaskBody {
 }
 
 export async function POST(request: Request) {
+
+    const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession()
+
+
+    if (!session || !session.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    console.log(session.user.id)
+
     const { title, due_at, status }: CreateTaskBody = await request.json();
 
     if (!title) {
@@ -17,9 +30,10 @@ export async function POST(request: Request) {
 
     const task = await prisma.task.create({
         data: {
+            userId: session.user.id,
             title: title,
             due_at: due_at ? new Date(due_at) : null,
-            status: status || 'pending'
+            status: status || TaskStatus.pending,
         }
     })
 
@@ -28,6 +42,17 @@ export async function POST(request: Request) {
 
 
 export async function GET() {
-    const tasks = await prisma.task.findMany();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user || !user.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const tasks = await prisma.task.findMany({
+        where: {
+            userId: user.id
+        }
+    });
     return NextResponse.json(tasks);
 }
