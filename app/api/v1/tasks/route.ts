@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/server'
 
 
 interface CreateTaskBody {
+    id?: string
     title: string;
     due_at?: string;
     status?: TaskStatus;
@@ -56,3 +57,6 @@ export async function GET() {
     });
     return NextResponse.json(tasks);
 }
+
+// patch 
+
