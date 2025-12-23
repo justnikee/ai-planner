@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type Task = {
     id: string
@@ -226,10 +227,11 @@ export function GetTasks() {
                 <p className="text-zinc-500 italic">No tasks found yet.</p>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {tasks.map(task => (
-                        <div key={task.id} className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors">
+                    {tasks.map((task, index) => (
+                        <Link key={index} href={`/dashboard/tasks/${task.id}`} className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors">
                             <h3 className="text-zinc-200 font-medium">{task.title}</h3>
-                        </div>
+                        </Link>
+
                     ))}
                 </div>
             )}

@@ -10,7 +10,7 @@ interface CreateTaskBody {
     status?: TaskStatus;
 }
 
-export async function PATCH(request: Request) {
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
     try {
         const supabase = await createClient();
         const { data: { session } } = await supabase.auth.getSession()
@@ -19,7 +19,8 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { id, title, due_at, status }: CreateTaskBody = await request.json();
+        const { id } = await params;
+        const { title, due_at, status }: CreateTaskBody = await request.json();
         const task = await prisma.task.update({
             where: {
                 id: id
@@ -38,7 +39,7 @@ export async function PATCH(request: Request) {
 }
 
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const supabase = await createClient();
         const { data: { session } } = await supabase.auth.getSession();
@@ -47,7 +48,7 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = await request.json();
+        const { id } = await params;
         const task = await prisma.task.delete({
             where: {
                 id: id
