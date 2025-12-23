@@ -14,7 +14,6 @@ export default function TaskDetails({ task }: TaskDetailsProps) {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
-    // Form state
     const [title, setTitle] = useState(task.title);
     const [status, setStatus] = useState(task.status);
     const [dueAt, setDueAt] = useState(task.due_at ? new Date(task.due_at).toISOString().slice(0, 16) : "");

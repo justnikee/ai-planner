@@ -16,6 +16,27 @@ export default function CreateTaskPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
+
+    const [tasks, setTasks] = useState<Task[]>([])
+    const [taskLoading, setTasksLoading] = useState(true)
+    async function fetchTasks() {
+        setTasksLoading(true);
+        try {
+            const res = await fetch('/api/v1/tasks');
+            const data = await res.json();
+            setTasks(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error('Failed to fetch tasks');
+        } finally {
+            setTasksLoading(false);
+        }
+    }
+
+
+    useEffect(() => {
+        fetchTasks();
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
@@ -44,6 +65,7 @@ export default function CreateTaskPage() {
             setSuccess(true);
             (e.target as HTMLFormElement).reset();
             router.refresh();
+            await fetchTasks();
 
         } catch (err: any) {
             setError(err.message);
@@ -181,37 +203,19 @@ export default function CreateTaskPage() {
             </div>
 
             <div className="max-w-4xl mx-auto">
-                <GetTasks />
+                <GetTasks tasks={tasks} loading={taskLoading} />
             </div>
         </div>
     );
 }
 
+type GetTasksProps = {
+    tasks: Task[];
+    loading: boolean;
+}
 
+export function GetTasks({ tasks, loading }: GetTasksProps) {
 
-export function GetTasks() {
-    const [tasks, setTasks] = useState<Task[]>([])
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        let mounted = true
-
-        fetch('/api/v1/tasks')
-            .then(res => res.json())
-            .then(data => {
-                if (mounted) {
-                    setTasks(Array.isArray(data) ? data : [])
-                    setLoading(false)
-                }
-            })
-            .catch(() => {
-                if (mounted) setLoading(false)
-            })
-
-        return () => {
-            mounted = false
-        }
-    }, [])
 
     if (loading) return (
         <div className="flex justify-center p-8 text-zinc-500 animate-pulse">
