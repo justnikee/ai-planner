@@ -2,7 +2,7 @@ export type AIAction =
     | {
         type: "createTask";
         title: string;
-        due_at?: string | null;
+        due_at?: string;
     }
     | {
         type: "updateTask";

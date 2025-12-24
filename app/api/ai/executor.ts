@@ -1,17 +1,22 @@
 import { AIAction } from "./types";
+import { createTaskForUser } from "../service/taskService";
 
-export async function executor(action: AIAction): Promise<any> {
+
+function getBaseUrl() {
+    if (process.env.NEXT_PUBLIC_SITE_URL) {
+        return process.env.NEXT_PUBLIC_SITE_URL;
+    }
+
+    // fallback for local dev
+    return "http://localhost:3000";
+}
+
+export async function executor(userId: string, action: AIAction): Promise<any> {
     switch (action.type) {
         case "createTask":
-            return fetch("/api/v1/tasks", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(action)
-            })
+            return createTaskForUser(userId, action)
         case "updateTask":
-            return fetch(`/api/v1/tasks/${action.taskId}`, {
+            return fetch(`${getBaseUrl()}/api/v1/tasks/${action.taskId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -19,7 +24,7 @@ export async function executor(action: AIAction): Promise<any> {
                 body: JSON.stringify(action)
             })
         case "deleteTask":
-            return fetch(`/api/v1/tasks/${action.taskId}`, {
+            return fetch(`${getBaseUrl()}/api/v1/tasks/${action.taskId}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json"

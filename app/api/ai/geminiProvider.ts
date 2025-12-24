@@ -5,7 +5,7 @@ export async function geminiProvider(message: string): Promise<AIAction> {
         return {
             type: "createTask",
             title: message,
-            due_at: null,
+            due_at: undefined,
         }
     }
 

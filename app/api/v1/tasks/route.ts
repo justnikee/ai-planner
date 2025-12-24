@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { TaskStatus } from "@prisma/client";
 import { createClient } from '@/utils/supabase/server'
+import { createTaskForUser } from "../../service/taskService";
 
 
 interface CreateTaskBody {
@@ -17,6 +18,8 @@ export async function POST(request: Request) {
     const { data: { session } } = await supabase.auth.getSession()
 
 
+    console.log(session, "session")
+
     if (!session || !session.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -29,14 +32,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
-    const task = await prisma.task.create({
-        data: {
-            userId: session.user.id,
-            title: title,
-            due_at: due_at ? new Date(due_at) : null,
-            status: status || TaskStatus.pending,
-        }
-    })
+    const task = await createTaskForUser(session.user.id, { title, due_at, status })
+
+    console.log(task)
 
     return NextResponse.json(task);
 }
@@ -57,6 +55,4 @@ export async function GET() {
     });
     return NextResponse.json(tasks);
 }
-
-// patch 
 

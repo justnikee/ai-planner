@@ -5,7 +5,6 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function POST(request: Request) {
     try {
-
         const supabase = await createClient();
         const { data: { session } } = await supabase.auth.getSession();
 
@@ -13,13 +12,13 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
         const { message } = await request.json();
-
+        console.log(message);
         if (!message) {
             return NextResponse.json({ error: "Missing message" }, { status: 400 });
         }
 
         const action = await aiProvider(message, "gemini");
-        await executor(action);
+        await executor(session.user.id, action);
 
         return NextResponse.json({
             success: true,
